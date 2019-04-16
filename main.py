@@ -89,7 +89,7 @@ if __name__=="__main__":
                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                             ])
         )
-    elif opt.dataset == 'cifar10':
+    elif opt.dataset == 'fingerprints':
         dataset = get_dataset(opt.dataroot, transforms.Compose([
                                    transforms.Scale(int(1.2 * opt.imageSize)),
                                    transforms.CenterCrop(opt.imageSize),
