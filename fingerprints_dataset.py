@@ -32,15 +32,9 @@ def numpy2pil(x):
     return Image.fromarray(x, mode=mode)
 
 
+#TODO: use grayscale images!
 def pil_loader(path):
-    img = Image.open(path)
-    if img.ndim == 3:
-        result = img
-    elif img.ndim == 2:
-        result = np.zeros((3, img.shape[0], img.shape[1]))
-        for i in range(3):
-            result[i, :, :] = img
-    return result
+    return Image.open(path).convert('RGB')
 
 
 class FingerprintsDataset(data.Dataset):
@@ -51,10 +45,8 @@ class FingerprintsDataset(data.Dataset):
     def __getitem__(self, index):
         img = pil_loader(self.images[index])
         img = self.transforms(img)
-        # img = rgb_preproc(pil2numpy(img))
-        # img = numpy2tensor(img)
 
-        return img
+        return img, 1  # Random label :D
 
     def __len__(self):
         return len(self.images)
