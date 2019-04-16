@@ -14,6 +14,7 @@ from torch.autograd import Variable
 import os
 import json
 
+from fingerprints_dataset import get_dataset
 import models.dcgan as dcgan
 import models.mlp as mlp
 
@@ -73,7 +74,7 @@ if __name__=="__main__":
                                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                 ]))
     elif opt.dataset == 'lsun':
-        dataset = dset.LSUN(db_path=opt.dataroot, classes=['bedroom_train'],
+        dataset = dset.LSUN(root=opt.dataroot, classes=['bedroom_train'],
                             transform=transforms.Compose([
                                 transforms.Scale(opt.imageSize),
                                 transforms.CenterCrop(opt.imageSize),
@@ -88,6 +89,14 @@ if __name__=="__main__":
                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                             ])
         )
+    elif opt.dataset == 'cifar10':
+        dataset = get_dataset(opt.dataroot, transforms.Compose([
+                                   transforms.Scale(int(1.2 * opt.imageSize)),
+                                   transforms.CenterCrop(opt.imageSize),
+                                   transforms.ToTensor(),
+                                   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                               ])
+                              )
     assert dataset
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=opt.batchSize,
                                             shuffle=True, num_workers=int(opt.workers))
