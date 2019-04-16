@@ -33,7 +33,14 @@ def numpy2pil(x):
 
 
 def pil_loader(path):
-    return Image.open(path)
+    img = Image.open(path)
+    if img.ndim == 3:
+        result = img
+    elif img.ndim == 2:
+        result = np.zeros((3, img.shape[0], img.shape[1]))
+        for i in range(3):
+            result[i, :, :] = img
+    return result
 
 
 class FingerprintsDataset(data.Dataset):
