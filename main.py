@@ -212,6 +212,7 @@ if __name__=="__main__":
 
                 # train with fake
                 noise.resize_(opt.batchSize, nz, 1, 1).normal_(0, 1)
+                # TODO: volatile warning
                 noisev = Variable(noise, volatile = True) # totally freeze netG
                 fake = Variable(netG(noisev).data)
                 inputv = fake
