@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from PIL import Image
+from skimage import exposure
 
 import torch.utils.data as data
 from torchvision.transforms.functional import crop as torch_crop
@@ -30,8 +31,9 @@ class FingerprintsDataset(data.Dataset):
         pil_img = Image.open(path)
         if path not in self.crop_dict:
             img = pil2numpy(pil_img)
-            img[img <= 200] = 0
-            img[img > 200] = 1
+            img = exposure.equalize_hist(img)
+            img[img <= 0.3] = 0
+            img[img > 0.3] = 1
             rows, cols = img.shape
 
             col_sum = np.sum(img, axis=0)
@@ -65,6 +67,8 @@ class FingerprintsDataset(data.Dataset):
             self.crop_dict[path] = (selected_row_range, selected_col_range, rows, cols)
 
         selected_row_range, selected_col_range, rows, cols = self.crop_dict[path]
+        if not selected_row_range or not selected_col_range:
+            print(path)
         cropped = torch_crop(pil_img, max(selected_row_range[0] - rows / 10, 0),
                              max(selected_col_range[0] - cols / 10, 0),
                              selected_row_range[1] + max(0, min(rows / 5, 11 * rows / 10 - sum(selected_row_range))),
