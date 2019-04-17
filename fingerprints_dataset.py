@@ -2,21 +2,8 @@ import os
 import numpy as np
 from PIL import Image
 
-import torch
 import torch.utils.data as data
-
-
-def rgb_preproc(img):
-    img = (2. * img[:, :, :3] / 255. - 1).astype(np.float32)
-    return img
-
-
-def numpy2tensor(x):
-    if x.ndim == 3:
-        x = np.transpose(x, (2, 0, 1))
-    elif x.ndim == 4:
-        x = np.transpose(x, (3, 0, 1, 2))
-    return torch.from_numpy(x)
+from torchvision.transforms.functional import crop as torch_crop
 
 
 def tensor2numpy(x):
@@ -32,11 +19,49 @@ def numpy2pil(x):
     return Image.fromarray(x, mode=mode)
 
 
-#TODO: use grayscale images!
 def pil_loader(path):
-    return Image.open(path).convert('RGB')
+    return Image.open(path)
 
 
+def crop_fingerprint_part(pil_img):
+    img = pil2numpy(pil_img)
+    img[img <= 200] = 0
+    img[img > 200] = 1
+    rows, cols = img.shape
+
+    col_sum = np.sum(img, axis=0)
+    col_sum[col_sum <= 3*rows/4] = 0
+    col_sum[col_sum > 3*rows/4] = 1
+    selected_col_range = None
+    start = None
+    for col in range(cols):
+        if col_sum[col] or (not col_sum[col] and col == cols - 1):
+            if start and (not selected_col_range or col - start > selected_col_range[1]):
+                selected_col_range = (start, col - start)
+            start = None
+            continue
+        if not start:
+            start = col
+
+    row_sum = np.sum(img, axis=1)
+    row_sum[row_sum <= 3*cols/4] = 0
+    row_sum[row_sum > 3*cols/4] = 1
+    selected_row_range = None
+    start = None
+    for row in range(rows):
+        if row_sum[row] or (not row_sum[row] and row == rows - 1):
+            if start and (not selected_row_range or row - start > selected_row_range[1]):
+                selected_row_range = (start, row - start)
+            start = None
+            continue
+        if not start:
+            start = row
+
+    cropped = torch_crop(pil_img, max(selected_row_range[0] - rows/10, 0), max(selected_col_range[0] - cols/10, 0), selected_row_range[1] + max(0, min(rows/5, 11*rows/10-sum(selected_row_range))), selected_col_range[1] + max(0, min(cols/5, 11*cols/10-sum(selected_col_range))))
+    return cropped
+
+
+# TODO: use grayscale images!
 class FingerprintsDataset(data.Dataset):
     def __init__(self, images, transforms):
         self.images = images
@@ -44,6 +69,7 @@ class FingerprintsDataset(data.Dataset):
 
     def __getitem__(self, index):
         img = pil_loader(self.images[index])
+        img = crop_fingerprint_part(img).convert("RGB")
         img = self.transforms(img)
 
         return img, 1  # Random label :D

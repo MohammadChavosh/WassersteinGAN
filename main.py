@@ -91,8 +91,8 @@ if __name__=="__main__":
         )
     elif opt.dataset == 'fingerprints':
         dataset = get_dataset(opt.dataroot, transforms.Compose([
-                                   transforms.Scale(int(1.2 * opt.imageSize)),
-                                   transforms.CenterCrop(opt.imageSize),
+                                   transforms.Scale(opt.imageSize),
+                                   # transforms.CenterCrop(opt.imageSize),
                                    transforms.ToTensor(),
                                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
                                ])
