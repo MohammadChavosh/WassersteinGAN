@@ -20,7 +20,6 @@ def numpy2pil(x):
     return Image.fromarray(x, mode=mode)
 
 
-# TODO: use grayscale images!
 class FingerprintsDataset(data.Dataset):
     def __init__(self, images, transforms):
         self.images = images
@@ -76,7 +75,7 @@ class FingerprintsDataset(data.Dataset):
         return cropped
 
     def __getitem__(self, index):
-        img = self.load_and_crop_fingerprint_part(self.images[index]).convert("RGB")
+        img = self.load_and_crop_fingerprint_part(self.images[index])
         img = self.transforms(img)
 
         return img, 1  # Random label :D
