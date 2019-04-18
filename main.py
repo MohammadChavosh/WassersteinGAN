@@ -60,10 +60,12 @@ if __name__=="__main__":
     torch.manual_seed(opt.manualSeed)
 
     cudnn.benchmark = True
+    nc = int(opt.nc)
 
     if torch.cuda.is_available() and not opt.cuda:
         print("WARNING: You have a CUDA device, so you should probably run with --cuda")
 
+    normalize_params = tuple([0.5] * nc)
     if opt.dataset in ['imagenet', 'folder', 'lfw']:
         # folder dataset
         dataset = dset.ImageFolder(root=opt.dataroot,
@@ -71,7 +73,7 @@ if __name__=="__main__":
                                     transforms.Scale(opt.imageSize),
                                     transforms.CenterCrop(opt.imageSize),
                                     transforms.ToTensor(),
-                                    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                                    transforms.Normalize(normalize_params, normalize_params),
                                 ]))
     elif opt.dataset == 'lsun':
         dataset = dset.LSUN(root=opt.dataroot, classes=['bedroom_train'],
@@ -79,14 +81,14 @@ if __name__=="__main__":
                                 transforms.Scale(opt.imageSize),
                                 transforms.CenterCrop(opt.imageSize),
                                 transforms.ToTensor(),
-                                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                                transforms.Normalize(normalize_params, normalize_params),
                             ]))
     elif opt.dataset == 'cifar10':
         dataset = dset.CIFAR10(root=opt.dataroot, download=True,
                             transform=transforms.Compose([
                                 transforms.Scale(opt.imageSize),
                                 transforms.ToTensor(),
-                                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                                transforms.Normalize(normalize_params, normalize_params),
                             ])
         )
     elif opt.dataset == 'fingerprints':
@@ -94,7 +96,7 @@ if __name__=="__main__":
                                    transforms.Scale(opt.imageSize),
                                    transforms.CenterCrop(opt.imageSize),
                                    transforms.ToTensor(),
-                                   transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                                   transforms.Normalize(normalize_params, normalize_params),
                                ])
                               )
     assert dataset
@@ -105,7 +107,6 @@ if __name__=="__main__":
     nz = int(opt.nz)
     ngf = int(opt.ngf)
     ndf = int(opt.ndf)
-    nc = int(opt.nc)
     n_extra_layers = int(opt.n_extra_layers)
 
     # write out generator config to generate images together wth training checkpoints (.pth)
