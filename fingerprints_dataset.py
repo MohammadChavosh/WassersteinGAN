@@ -84,13 +84,16 @@ class FingerprintsDataset(data.Dataset):
         return len(self.images)
 
 
-def get_dataset(base_path, transforms):
+def get_fingerprint_images_list(base_path):
     images = []
     for f in os.listdir(base_path):
         vol_path = os.path.join(base_path, f, 'sd09', f)
         for person_folder in os.listdir(vol_path):
             for i in range(1, 11):
                 images.append(os.path.join(vol_path, person_folder, '{}_{:02d}.png'.format(person_folder, i)))
+    return images
 
-    dataset = FingerprintsDataset(images, transforms)
-    return dataset
+
+def get_dataset(base_path, transforms):
+    images = get_dataset(base_path)
+    return FingerprintsDataset(images, transforms)
