@@ -80,7 +80,7 @@ class FingerprintsDataset(data.Dataset):
         return Image.open(path)
 
     def __getitem__(self, index):
-        if self.load_cropped:
+        if self.load_cropped and self.images[index].endswith('cropped.png'):
             img = self.load_img(self.images[index])
         else:
             img = self.load_and_crop_fingerprint_part(self.images[index])
@@ -98,8 +98,9 @@ def get_fingerprint_images_list(base_path, load_cropped=True):
         vol_path = os.path.join(base_path, f, 'sd09', f)
         for person_folder in os.listdir(vol_path):
             for i in range(1, 11):
-                if load_cropped:
-                    images.append(os.path.join(vol_path, person_folder, '{}_{:02d}_cropped.png'.format(person_folder, i)))
+                file_path = os.path.join(vol_path, person_folder, '{}_{:02d}_cropped.png'.format(person_folder, i))
+                if load_cropped and os.path.exists(file_path):
+                    images.append(file_path)
                 else:
                     images.append(os.path.join(vol_path, person_folder, '{}_{:02d}.png'.format(person_folder, i)))
     return images

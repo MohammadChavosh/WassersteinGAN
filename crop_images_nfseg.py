@@ -34,6 +34,7 @@ for idx, image in enumerate(images):
     os.remove(os.path.join(raw_path, image.split('/')[-1][:-4] + '_01.raw'))
     if out_dict['e'] > 0:
         print('ERROR in {}'.format(image))
-        break
+        continue
+    save_cropped_image(image, out_dict)
     if idx % 1000 == 0:
         print("{}/{} processed".format(idx + 1, len(images)))
