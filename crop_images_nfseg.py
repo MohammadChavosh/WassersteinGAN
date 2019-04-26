@@ -20,7 +20,7 @@ def save_cropped_image(path, param_dict):
 
 bashCommand = "/home/chavosh/NBIS/bin/nfseg 1 1 1 3 1 {}"
 images = get_fingerprint_images_list('/home/sadegh/Fingerprint_files/sd09/', load_cropped=False)
-raw_path = '/home/chavosh/WassersteinGAN'
+rm_command = 'rm /home/chavosh/WassersteinGAN/*.raw'
 for idx, image in enumerate(images):
     process = subprocess.Popen(bashCommand.format(image).split(), stdout=subprocess.PIPE)
     output, error = process.communicate()
@@ -31,7 +31,8 @@ for idx, image in enumerate(images):
             out_dict[out] = int(output[inner_idx + 1])
         except Exception as e:
             continue
-    os.remove(os.path.join(raw_path, image.split('/')[-1][:-4] + '.raw'))
+    process = subprocess.Popen(rm_command.split(), stdout=subprocess.PIPE)
+    _, _ = process.communicate()
     if out_dict['e'] > 0:
         print('ERROR in {}'.format(image))
         break
