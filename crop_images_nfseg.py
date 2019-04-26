@@ -15,7 +15,7 @@ def save_cropped_image(path, param_dict):
     left = param_dict['sx'] - param_dict['sw'] / 2
     low = param_dict['sy'] - param_dict['sh'] / 2
     cropped = torch_crop(img, low, left, param_dict['sh'], param_dict['sw'])
-    cropped.save(path[:-4] + "_cropped", "PNG")
+    cropped.save(path[:-4] + "_cropped.png", "PNG")
 
 
 bashCommand = "/home/chavosh/NBIS/bin/nfseg 1 1 1 3 1 {}"
