@@ -47,6 +47,7 @@ if __name__=="__main__":
     parser.add_argument('--n_extra_layers', type=int, default=0, help='Number of extra layers on gen and disc')
     parser.add_argument('--experiment', default=None, help='Where to store samples and models')
     parser.add_argument('--adam', action='store_true', help='Whether to use adam (default is rmsprop)')
+    parser.add_argument('--use_nfseg_cropping', action='store_false', help='use MLP for D')
     opt = parser.parse_args()
     print(opt)
 
@@ -97,7 +98,7 @@ if __name__=="__main__":
                                    transforms.CenterCrop(opt.imageSize),
                                    transforms.ToTensor(),
                                    transforms.Normalize(normalize_params, normalize_params),
-                               ])
+                               ]), opt.use_nfseg_cropping
                               )
     assert dataset
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=opt.batchSize,

@@ -21,10 +21,11 @@ def numpy2pil(x):
 
 
 class FingerprintsDataset(data.Dataset):
-    def __init__(self, images, transforms):
+    def __init__(self, images, transforms, load_cropped):
         self.images = images
         self.transforms = transforms
         self.crop_dict = {}
+        self.load_cropped = load_cropped
 
     def load_and_crop_fingerprint_part(self, path):
         pil_img = Image.open(path)
@@ -74,8 +75,15 @@ class FingerprintsDataset(data.Dataset):
                              selected_col_range[1] + max(0, min(cols / 5, 11 * cols / 10 - sum(selected_col_range))))
         return cropped
 
+    @staticmethod
+    def load_img(path):
+        return Image.open(path)
+
     def __getitem__(self, index):
-        img = self.load_and_crop_fingerprint_part(self.images[index])
+        if self.load_cropped:
+            img = self.load_img(self.images[index])
+        else:
+            img = self.load_and_crop_fingerprint_part(self.images[index])
         img = self.transforms(img)
 
         return img, 1  # Random label :D
@@ -84,16 +92,19 @@ class FingerprintsDataset(data.Dataset):
         return len(self.images)
 
 
-def get_fingerprint_images_list(base_path):
+def get_fingerprint_images_list(base_path, load_cropped=True):
     images = []
     for f in os.listdir(base_path):
         vol_path = os.path.join(base_path, f, 'sd09', f)
         for person_folder in os.listdir(vol_path):
             for i in range(1, 11):
-                images.append(os.path.join(vol_path, person_folder, '{}_{:02d}.png'.format(person_folder, i)))
+                if load_cropped:
+                    images.append(os.path.join(vol_path, person_folder, '{}_{:02d}_cropped.png'.format(person_folder, i)))
+                else:
+                    images.append(os.path.join(vol_path, person_folder, '{}_{:02d}.png'.format(person_folder, i)))
     return images
 
 
-def get_dataset(base_path, transforms):
-    images = get_dataset(base_path)
-    return FingerprintsDataset(images, transforms)
+def get_dataset(base_path, transforms, load_cropped=True):
+    images = get_dataset(base_path, load_cropped)
+    return FingerprintsDataset(images, transforms, load_cropped)
