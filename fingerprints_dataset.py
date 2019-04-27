@@ -107,5 +107,5 @@ def get_fingerprint_images_list(base_path, load_cropped=True):
 
 
 def get_dataset(base_path, transforms, load_cropped=True):
-    images = get_dataset(base_path, load_cropped)
+    images = get_fingerprint_images_list(base_path, load_cropped)
     return FingerprintsDataset(images, transforms, load_cropped)
