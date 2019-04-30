@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.parallel
 
+
 class DCGAN_D(nn.Module):
     def __init__(self, isize, nz, nc, ndf, ngpu, n_extra_layers=0):
         super(DCGAN_D, self).__init__()
@@ -51,6 +52,7 @@ class DCGAN_D(nn.Module):
             
         output = output.mean(0)
         return output.view(1)
+
 
 class DCGAN_G(nn.Module):
     def __init__(self, isize, nz, nc, ngf, ngpu, n_extra_layers=0):

@@ -1,9 +1,6 @@
 from __future__ import print_function
 import argparse
 import random
-import torch
-import torch.nn as nn
-import torch.nn.parallel
 import torch.backends.cudnn as cudnn
 import torch.optim as optim
 import torch.utils.data
@@ -151,7 +148,7 @@ if __name__=="__main__":
         netD.load_state_dict(torch.load(opt.netD))
     print(netD)
 
-    input = torch.FloatTensor(opt.batchSize, 3, opt.imageSize, opt.imageSize)
+    input = torch.FloatTensor(opt.batchSize, nc, opt.imageSize, opt.imageSize)
     noise = torch.FloatTensor(opt.batchSize, nz, 1, 1)
     fixed_noise = torch.FloatTensor(opt.batchSize, nz, 1, 1).normal_(0, 1)
     one = torch.FloatTensor([1])
@@ -169,8 +166,8 @@ if __name__=="__main__":
         optimizerD = optim.Adam(netD.parameters(), lr=opt.lrD, betas=(opt.beta1, 0.999))
         optimizerG = optim.Adam(netG.parameters(), lr=opt.lrG, betas=(opt.beta1, 0.999))
     else:
-        optimizerD = optim.RMSprop(netD.parameters(), lr = opt.lrD)
-        optimizerG = optim.RMSprop(netG.parameters(), lr = opt.lrG)
+        optimizerD = optim.RMSprop(netD.parameters(), lr=opt.lrD)
+        optimizerG = optim.RMSprop(netG.parameters(), lr=opt.lrG)
 
     gen_iterations = 0
     for epoch in range(opt.niter):
@@ -214,9 +211,9 @@ if __name__=="__main__":
 
                 # train with fake
                 noise.resize_(opt.batchSize, nz, 1, 1).normal_(0, 1)
-                # TODO: volatile warning
-                noisev = Variable(noise, volatile = True) # totally freeze netG
-                fake = Variable(netG(noisev).data)
+                with torch.no_grad():
+                    noisev = Variable(noise)  # totally freeze netG
+                    fake = Variable(netG(noisev).data)
                 inputv = fake
                 errD_fake = netD(inputv)
                 errD_fake.backward(mone)
@@ -245,9 +242,10 @@ if __name__=="__main__":
             if gen_iterations % 500 == 0:
                 real_cpu = real_cpu.mul(0.5).add(0.5)
                 vutils.save_image(real_cpu, '{0}/real_samples.png'.format(opt.experiment))
-                fake = netG(Variable(fixed_noise, volatile=True))
-                fake.data = fake.data.mul(0.5).add(0.5)
-                vutils.save_image(fake.data, '{0}/fake_samples_{1}.png'.format(opt.experiment, gen_iterations))
+                with torch.no_grad():
+                    fake = netG(Variable(fixed_noise))
+                    fake.data = fake.data.mul(0.5).add(0.5)
+                    vutils.save_image(fake.data, '{0}/fake_samples_{1}.png'.format(opt.experiment, gen_iterations))
 
         # do checkpointing
         torch.save(netG.state_dict(), '{0}/netG_epoch_{1}.pth'.format(opt.experiment, epoch))
