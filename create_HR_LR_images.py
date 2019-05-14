@@ -1,12 +1,7 @@
-import numpy as np
 from PIL import Image
 from torchvision.transforms.functional import five_crop as torch_five_crop, resize as torch_resize
 
 from fingerprints_dataset import get_fingerprint_images_list
-
-
-def pil2numpy(x):
-    return np.array(x).astype(np.float32)
 
 
 def save_resized_image(path, HR_image_size, LR_image_size):
