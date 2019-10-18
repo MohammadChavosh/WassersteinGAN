@@ -1,7 +1,7 @@
 import subprocess
+import os
 
 from fingerprints_dataset import get_fingerprint_images_list
-
 
 bashCommand = "/home/chavosh/NBIS/bin/mindtct {} /home/chavosh/extracted_minutiaes/real_from_HR/{}"
 images = get_fingerprint_images_list('/home/sadegh/Fingerprint_files/sd09/', load_cropped=True, HR_true=True)

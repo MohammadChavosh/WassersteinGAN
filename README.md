@@ -49,3 +49,11 @@ med_filtered_loss = scipy.signal.medfilt(-Loss_D, dtype='float64'), 101)
 ```
 
 More improved README in the works.
+
+## My Works
+
+After training the generator model, I also trained an SR model and used it to make my generated images bigger.
+
+Then, I extracted minutiae of real images and fake ones to train a classifier to assess quality of my fake images.
+
+Now, I am going to select first 80 (or ?) minutiae (the minutiae are sorted by x and then y axis) and train the classifier.
