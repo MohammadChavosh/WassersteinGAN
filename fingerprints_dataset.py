@@ -92,17 +92,23 @@ class FingerprintsDataset(data.Dataset):
         return len(self.images)
 
 
-def get_fingerprint_images_list(base_path, load_cropped=True):
+def get_fingerprint_images_list(base_path, load_cropped=True, HR_true=False):
     images = []
     for f in os.listdir(base_path):
         vol_path = os.path.join(base_path, f, 'sd09', f)
         for person_folder in os.listdir(vol_path):
             for i in range(1, 11):
-                file_path = os.path.join(vol_path, person_folder, '{}_{:02d}_cropped.png'.format(person_folder, i))
-                if load_cropped and os.path.exists(file_path):
-                    images.append(file_path)
+                if HR_true:
+                    file_path = os.path.join(vol_path, person_folder,
+                                             '{}_{:02d}_cropped_resized_HR.png'.format(person_folder, i))
+                    if os.path.exists(file_path):
+                        images.append(file_path)
                 else:
-                    images.append(os.path.join(vol_path, person_folder, '{}_{:02d}.png'.format(person_folder, i)))
+                    file_path = os.path.join(vol_path, person_folder, '{}_{:02d}_cropped.png'.format(person_folder, i))
+                    if load_cropped and os.path.exists(file_path):
+                        images.append(file_path)
+                    else:
+                        images.append(os.path.join(vol_path, person_folder, '{}_{:02d}.png'.format(person_folder, i)))
     return images
 
 
